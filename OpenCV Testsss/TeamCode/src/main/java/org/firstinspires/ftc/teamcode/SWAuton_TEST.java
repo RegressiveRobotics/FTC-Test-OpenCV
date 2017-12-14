@@ -278,6 +278,17 @@ public class SWAuton_TEST extends LinearOpMode {
         //Sleep to allow it to close
         sleep(1000);
 
+        //Get off Balance Stone
+        encoderDrive(DRIVE_SPEED*1.2,26,26,10);
+        //Align with Balance Stone
+        encoderDrive(DRIVE_SPEED,-13,-13,10);
+        //Drive Forward to the front of the cryptobox
+        encoderDrive(DRIVE_SPEED*1.4,12,12,5);
+        //Flip around to scan the glyph pile
+        encoderDrive(DRIVE_SPEED,-24,24,15);
+
+
+
         telemetry.addData("Status", "Initialized");
 
 
