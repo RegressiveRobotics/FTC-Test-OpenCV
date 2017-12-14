@@ -198,11 +198,11 @@ public class SWAuton_TEST extends LinearOpMode {
 
         //SET UP VUFORIA
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        ClosableVuforiaLocalizer.Parameters parameters = new ClosableVuforiaLocalizer.Parameters(cameraMonitorViewId);
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
         parameters.vuforiaLicenseKey = "AV4rzZr/////AAAAGdd9iX6K6E4vot4iYXx7M+sE9XVwwTL30eOKvSPorcY1yK25A3ZI/ajH4Ktmg+2K1R4sUibLK6BBgw/jKf/juUgjbwB6Wi/magAhEnKorWebeAg8AzjlhbgBE5mhmtkX60bedZF/qX/6/leqVhEd0XZvGn/3xv56Z5NMrOsZzJRMqWNujm4R8Q1fhjBqwIkFuhGzJ2jFzWktAebZcGaImLwgaOjNlYLebS8lxpDuP7bnu/AwsRo/up1zuvUoncDabDS4SFeh/Vjy2fIFApnq7GieBaL2uv4gssG2JUgYvXz3uvQAswf5b5k8v6z0120obXqyH3949gLYeyoY/uZ5g9r93aoyxr2jEwg7+tRezzit";
 
-        parameters.cameraDirection = ClosableVuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         ClosableVuforiaLocalizer vuforia = new ClosableVuforiaLocalizer(parameters);
 
 
@@ -237,7 +237,7 @@ public class SWAuton_TEST extends LinearOpMode {
         //Knocking off the Jewel (BLUE ALLIANCE)!!!
 
 
-
+        vuforia.close();
         //NOTE:SWIVEL ARM DOWN
         jewelStick.setPosition(jewelPos1);
         sleep(1000);
@@ -274,7 +274,7 @@ public class SWAuton_TEST extends LinearOpMode {
             encoderDrive(DRIVE_SPEED, 4, 4, 4.0);
         }
 
-        vuforia.close();
+
         //Sleep to allow it to close
         sleep(1000);
 
