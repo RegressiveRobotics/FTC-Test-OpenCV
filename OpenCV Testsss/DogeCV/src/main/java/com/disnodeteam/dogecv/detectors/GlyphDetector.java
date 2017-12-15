@@ -37,7 +37,7 @@ public class GlyphDetector extends OpenCVPipeline {
 
     public GlyphDetectionMode  detectionMode        = GlyphDetectionMode.EDGE;
     public double              downScaleFactor      = 0.6;
-    public boolean             rotateMat            = false;
+    public boolean             rotateMat            = true;
     public double              minScore             = 0.5;
     public double              scoreRatioWeight     = 0.5;
     public double              scoreDistanceXWeight = 0.8;

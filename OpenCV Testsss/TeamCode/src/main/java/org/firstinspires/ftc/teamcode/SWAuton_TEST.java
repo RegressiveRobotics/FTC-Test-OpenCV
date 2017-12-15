@@ -132,7 +132,7 @@ public class SWAuton_TEST extends LinearOpMode {
 
     OpenGLMatrix lastLocation = null;
 
-    ClosableVuforiaLocalizer vuforia;
+    VuforiaLocalizer vuforia;
 
     @Override
     public void runOpMode() {
@@ -298,6 +298,7 @@ public class SWAuton_TEST extends LinearOpMode {
         glyphDetector.downScaleFactor = 0.3;
         glyphDetector.speed = GlyphDetector.GlyphDetectionSpeed.BALANCED;
         glyphDetector.enable();
+
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Glyph Pos X", glyphDetector.getChosenGlyphOffset());
