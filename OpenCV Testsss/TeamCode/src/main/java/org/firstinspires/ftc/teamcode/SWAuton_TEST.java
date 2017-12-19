@@ -96,6 +96,9 @@ public class SWAuton_TEST extends LinearOpMode {
     private Servo leftGrab = null;
     private Servo rightGrab = null;
 
+    private Servo leftGrab2 = null;
+    private Servo rightGrab2 = null;
+
     //Jewels stuff
     private Servo jewelStick = null;
 
@@ -109,6 +112,24 @@ public class SWAuton_TEST extends LinearOpMode {
 
     double leftClosePos = 0.75;
     double rightClosePos = 0.33;
+
+    double leftHalfPos = leftClosePos - leftOpenPos;
+    double rightHalfPos = rightOpenPos - rightClosePos;
+
+    double leftPushPos = 0.40;
+    double rightPushPos = 0.75;
+
+    double leftOpenPos2 = 0.79;
+    double rightOpenPos2 = 0.00;
+
+    double leftClosePos2 = 0.30;
+    double rightClosePos2 = 0.49;
+
+    double leftHalfPos2 = 0.50;
+    double rightHalfPos2 = 0.25;
+
+    double leftPushPos2 = 0.60;
+    double rightPushPos2 = 0.12;
 
     //Jewel Stick positions
     double jewelPos1 = 0.85;
@@ -132,7 +153,7 @@ public class SWAuton_TEST extends LinearOpMode {
 
     OpenGLMatrix lastLocation = null;
 
-    VuforiaLocalizer vuforia;
+    ClosableVuforiaLocalizer vuforia;
 
     @Override
     public void runOpMode() {
@@ -146,6 +167,12 @@ public class SWAuton_TEST extends LinearOpMode {
 
         leftGrab = hardwareMap.get(Servo.class, "left_grab");
         rightGrab = hardwareMap.get(Servo.class, "right_grab");
+
+        leftGrab2 = hardwareMap.get(Servo.class, "left_grab2");
+        rightGrab2 = hardwareMap.get(Servo.class, "right_grab2");
+
+        leftGrab2.setDirection(Servo.Direction.FORWARD);
+        rightGrab2.setDirection(Servo.Direction.FORWARD);
 
         leftDrive = hardwareMap.get(DcMotor.class, "left_drive");
 
@@ -203,7 +230,7 @@ public class SWAuton_TEST extends LinearOpMode {
         parameters.vuforiaLicenseKey = "AV4rzZr/////AAAAGdd9iX6K6E4vot4iYXx7M+sE9XVwwTL30eOKvSPorcY1yK25A3ZI/ajH4Ktmg+2K1R4sUibLK6BBgw/jKf/juUgjbwB6Wi/magAhEnKorWebeAg8AzjlhbgBE5mhmtkX60bedZF/qX/6/leqVhEd0XZvGn/3xv56Z5NMrOsZzJRMqWNujm4R8Q1fhjBqwIkFuhGzJ2jFzWktAebZcGaImLwgaOjNlYLebS8lxpDuP7bnu/AwsRo/up1zuvUoncDabDS4SFeh/Vjy2fIFApnq7GieBaL2uv4gssG2JUgYvXz3uvQAswf5b5k8v6z0120obXqyH3949gLYeyoY/uZ5g9r93aoyxr2jEwg7+tRezzit";
 
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        ClosableVuforiaLocalizer vuforia = new ClosableVuforiaLocalizer(parameters);
+        this.vuforia = new ClosableVuforiaLocalizer(parameters);
 
 
         VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
@@ -237,7 +264,7 @@ public class SWAuton_TEST extends LinearOpMode {
         //Knocking off the Jewel (BLUE ALLIANCE)!!!
 
 
-        vuforia.close();
+
         //NOTE:SWIVEL ARM DOWN
         jewelStick.setPosition(jewelPos1);
         sleep(1000);
@@ -275,19 +302,60 @@ public class SWAuton_TEST extends LinearOpMode {
         }
 
 
-        //Sleep to allow it to close
-        sleep(1000);
 
         //Get off Balance Stone
         encoderDrive(DRIVE_SPEED*1.2,26,26,10);
         //Align with Balance Stone
         encoderDrive(DRIVE_SPEED,-13,-13,10);
-        //Drive Forward to the front of the cryptobox
-        encoderDrive(DRIVE_SPEED*1.4,12,12,5);
-        //Flip around to scan the glyph pile
-        encoderDrive(DRIVE_SPEED,-24,24,15);
+        //VUMARK PATHS
+        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
+        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+            telemetry.addData("VuMark", "%s visible", vuMark);
+        }
+        else {
+            telemetry.addData("VuMark", "not visible");
+        }
 
+        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+            if (vuMark == RelicRecoveryVuMark.LEFT) {
+                //Drive towards correct position
+                encoderDrive(DRIVE_SPEED, 6, 6, 10.0);
+                caseVumark = 'C';
+            }
+            else if (vuMark == RelicRecoveryVuMark.CENTER) {
+                //Drive towards correct position
+                encoderDrive(DRIVE_SPEED*1.3, 13, 13, 10.0);
+                caseVumark = 'L';
+            }
+            else if (vuMark == RelicRecoveryVuMark.RIGHT) {
+                //Drive towards correct position
+                encoderDrive(DRIVE_SPEED*1.4, 20,20,10.0);
+                caseVumark = 'R';
+            }
+            else caseVumark = '?';
+        } else {
+            //Drive towards the correct position
+            encoderDrive(DRIVE_SPEED, 6, 6, 10.0);
+        }
+        //Close Vuforia
+        vuforia.close();
+        leftGrab.setPosition(leftOpenPos);
+        rightGrab.setPosition(rightOpenPos);
 
+        //DriveBack
+        encoderDrive(DRIVE_SPEED*1.5,-5,-5,5);
+        //Raise Arm to grab both.
+        moveArm(1,3000,5);
+        //Turn to face pile
+        encoderDrive(TURN_SPEED,-12,12,6);
+        //Line up consistently according to which vumark we got.
+        if (vuMark == RelicRecoveryVuMark.RIGHT){
+            encoderDrive(DRIVE_SPEED,7,7,5);
+        }else if (vuMark == RelicRecoveryVuMark.LEFT) {
+            encoderDrive(DRIVE_SPEED, -7, -7, 5);
+        }
+        //sleep for 2 secs
+        sleep(2000);
 
         telemetry.addData("Status", "Initialized");
 
@@ -295,24 +363,49 @@ public class SWAuton_TEST extends LinearOpMode {
         glyphDetector = new GlyphDetector();
         glyphDetector.init(hardwareMap.appContext, CameraViewDisplay.getInstance());
         glyphDetector.minScore = 1;
-        glyphDetector.downScaleFactor = 0.3;
-        glyphDetector.speed = GlyphDetector.GlyphDetectionSpeed.BALANCED;
+        glyphDetector.downScaleFactor = 0.5;
+        glyphDetector.speed = GlyphDetector.GlyphDetectionSpeed.FAST;
         glyphDetector.enable();
-
-
+        telemetry.addData("INITIALIZED CV",5);
+        sleep(2000);
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Glyph Pos X", glyphDetector.getChosenGlyphOffset());
         telemetry.addData("Glyph Pos Offest", glyphDetector.getChosenGlyphPosition().toString());
 
         double ChosenGlyph = glyphDetector.getChosenGlyphOffset();
-        double Halfway = 200;
-        double Halfway2 = 201;
-        if (ChosenGlyph >= Halfway2){
-            encoderDrive(DRIVE_SPEED,-10,-10,10);
-        }else if (ChosenGlyph <= Halfway){
-            encoderDrive(DRIVE_SPEED,10,10,10);
+        while(ChosenGlyph > 0){
+            encoderDrive(DRIVE_SPEED*1.7,0.5,0.5,10);
         }
-
+        //Should be aligned consistently at this point so turn towards it
+        encoderDrive(DRIVE_SPEED*1.5, -12,12,5);
+        //Set Servos to push pos
+        leftGrab.setPosition(leftPushPos);
+        rightGrab.setPosition(rightPushPos);
+        leftGrab2.setPosition(leftPushPos2);
+        rightGrab2.setPosition(rightPushPos2);
+        //Drive into glyph pile
+        encoderDrive(DRIVE_SPEED*1.7,20,20,10);
+        //Grab the Glyphs (Close Servos)
+        leftGrab.setPosition(leftClosePos);
+        rightGrab.setPosition(rightClosePos);
+        leftGrab2.setPosition(leftClosePos2);
+        rightGrab2.setPosition(rightClosePos2);
+        //Back up out of pile
+        encoderDrive(DRIVE_SPEED*1.7,-15,-15,10);
+        //Turn to cryptobox
+        encoderDrive(DRIVE_SPEED*1.5,-10,12,5);
+        //Lift Arm
+        moveArm(1,3000,10);
+        //RAM INTO THAT BOX BOIIII
+        encoderDrive(DRIVE_SPEED*2,30,30,10);
+        //Release those glyphs
+        leftGrab.setPosition(leftOpenPos);
+        rightGrab.setPosition(rightOpenPos);
+        leftGrab2.setPosition(leftOpenPos2);
+        rightGrab2.setPosition(rightOpenPos2);
+        //Back up outta there
+        encoderDrive(DRIVE_SPEED,-3,-3,5);
+        sleep(20000);
 
 
 
